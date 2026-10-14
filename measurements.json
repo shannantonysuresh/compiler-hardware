@@ -1,0 +1,32 @@
+{
+  "vector_add": {
+    "t_scalar_measured": 0.603820500196889,
+    "t_vector_measured": 0.03356969985179603,
+    "speedup": 17.98706878115217,
+    "measured_winner": "vector"
+  },
+  "dot_product": {
+    "t_scalar_measured": 0.71488710003905,
+    "t_vector_measured": 0.029965899884700775,
+    "speedup": 23.85668719410088,
+    "measured_winner": "vector"
+  },
+  "stencil_2d": {
+    "t_scalar_measured": 0.771483700023964,
+    "t_vector_measured": 0.05939289997331798,
+    "speedup": 12.989493699929621,
+    "measured_winner": "vector"
+  },
+  "matmul": {
+    "t_scalar_measured": 1.592192200012505,
+    "t_vector_measured": 0.002163299825042486,
+    "speedup": 736.0016312030327,
+    "measured_winner": "vector"
+  },
+  "irregular_branchy_sum": {
+    "t_scalar_measured": 0.399249600013718,
+    "t_vector_measured": 0.050140999956056476,
+    "speedup": 7.962537651096308,
+    "measured_winner": "vector"
+  }
+}

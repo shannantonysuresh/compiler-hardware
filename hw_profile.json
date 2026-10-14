@@ -1,0 +1,7 @@
+{
+  "cpu_peak_flops": 872858931.5623759,
+  "cpu_mem_bandwidth": 29952170193.780945,
+  "cpu_sync_latency_sec": 2.823399985209107e-07,
+  "cores_logical": 10,
+  "cores_physical": 8
+}

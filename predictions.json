@@ -1,0 +1,32 @@
+[
+  {
+    "name": "vector_add",
+    "t_total_vec_pred": 0.005728302500210702,
+    "t_total_scalar_pred": 0.4,
+    "predicted_winner": "vector"
+  },
+  {
+    "name": "dot_product",
+    "t_total_vec_pred": 0.011456605000421404,
+    "t_total_scalar_pred": 0.4,
+    "predicted_winner": "vector"
+  },
+  {
+    "name": "stencil_2d",
+    "t_total_vec_pred": 0.022867406494051123,
+    "t_total_scalar_pred": 0.31936032000000003,
+    "predicted_winner": "vector"
+  },
+  {
+    "name": "matmul",
+    "t_total_vec_pred": 0.06186566700227558,
+    "t_total_scalar_pred": 2.16,
+    "predicted_winner": "vector"
+  },
+  {
+    "name": "irregular_branchy_sum",
+    "t_total_vec_pred": 1.4174282951047643,
+    "t_total_scalar_pred": 0.4,
+    "predicted_winner": "scalar"
+  }
+]

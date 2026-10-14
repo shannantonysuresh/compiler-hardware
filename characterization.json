@@ -1,0 +1,57 @@
+{
+  "vector_add": {
+    "name": "vector_add",
+    "description": "c[i] = a[i] + b[i]",
+    "N": 5000000,
+    "iterations": 5000000,
+    "flops": 5000000,
+    "mem_bytes": 120000000,
+    "arithmetic_intensity": 0.041666666666666664,
+    "branch_ratio": 0.0,
+    "reuse_distance": "none (streaming)"
+  },
+  "dot_product": {
+    "name": "dot_product",
+    "description": "sum += a[i]*b[i]",
+    "N": 5000000,
+    "iterations": 5000000,
+    "flops": 10000000,
+    "mem_bytes": 80000000,
+    "arithmetic_intensity": 0.125,
+    "branch_ratio": 0.0,
+    "reuse_distance": "none (streaming)"
+  },
+  "stencil_2d": {
+    "name": "stencil_2d",
+    "description": "5-point 2D stencil: out[i,j] = avg of 4 neighbors",
+    "N": 2000,
+    "iterations": 3992004,
+    "flops": 19960020,
+    "mem_bytes": 159680160,
+    "arithmetic_intensity": 0.125,
+    "branch_ratio": 0.0,
+    "reuse_distance": "short (neighbor reuse across rows)"
+  },
+  "matmul": {
+    "name": "matmul",
+    "description": "C = A @ B (square NxN)",
+    "N": 300,
+    "iterations": 27000000,
+    "flops": 54000000,
+    "mem_bytes": 2160000,
+    "arithmetic_intensity": 25.0,
+    "branch_ratio": 0.0,
+    "reuse_distance": "high (rows/cols reused N times)"
+  },
+  "irregular_branchy_sum": {
+    "name": "irregular_branchy_sum",
+    "description": "sum over sparse/conditional predicate: if (a[i] % 7 == 0) sum += a[i]",
+    "N": 5000000,
+    "iterations": 5000000,
+    "flops": 5000000,
+    "mem_bytes": 40000000,
+    "arithmetic_intensity": 0.125,
+    "branch_ratio": 1.0,
+    "reuse_distance": "none (streaming, unpredictable branch)"
+  }
+}

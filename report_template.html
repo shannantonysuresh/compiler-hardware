@@ -1,0 +1,354 @@
+<title>Cost-Model Device Selection</title>
+<style>
+:root{
+  --bg:#EDEFF2;
+  --paper:#F7F8FA;
+  --ink:#1B222A;
+  --ink-soft:#4B5560;
+  --accent:#1F7A6C;
+  --accent-soft:#E4F1EE;
+  --amber:#C97A2B;
+  --amber-soft:#FBEDDD;
+  --red:#B34A4A;
+  --red-soft:#F8E9E9;
+  --line:#D5DAE0;
+  --mono-bg:#101418;
+  --mono-ink:#DCE3E8;
+  --mono-accent:#5FC9B4;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#12161A;
+    --paper:#181D22;
+    --ink:#E7EAEC;
+    --ink-soft:#9AA6AE;
+    --accent:#5FC9B4;
+    --accent-soft:#1C2C29;
+    --amber:#E0A254;
+    --amber-soft:#2C2318;
+    --red:#E28080;
+    --red-soft:#2E1E1E;
+    --line:#2B3238;
+    --mono-bg:#0B0E11;
+    --mono-ink:#DCE3E8;
+    --mono-accent:#5FC9B4;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#12161A;
+  --paper:#181D22;
+  --ink:#E7EAEC;
+  --ink-soft:#9AA6AE;
+  --accent:#5FC9B4;
+  --accent-soft:#1C2C29;
+  --amber:#E0A254;
+  --amber-soft:#2C2318;
+  --red:#E28080;
+  --red-soft:#2E1E1E;
+  --line:#2B3238;
+  --mono-bg:#0B0E11;
+  --mono-ink:#DCE3E8;
+  --mono-accent:#5FC9B4;
+}
+
+*{box-sizing:border-box;}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'IBM Plex Sans',-apple-system,Segoe UI,sans-serif;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:800px;margin:0 auto;padding:56px 24px 96px;}
+
+.masthead{border-bottom:2px solid var(--ink);padding-bottom:22px;margin-bottom:36px;}
+.eyebrow{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:10px;
+}
+h1{
+  font-size:clamp(28px,4.2vw,38px);
+  font-weight:600;margin:0 0 8px;letter-spacing:-.01em;
+  text-wrap:balance;
+}
+.subtitle{color:var(--ink-soft);font-size:16px;max-width:60ch;}
+.meta-row{
+  display:flex;flex-wrap:wrap;gap:20px;margin-top:18px;
+  font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--ink-soft);
+}
+.meta-row span b{color:var(--ink);font-weight:600;}
+
+.status-banner{
+  display:flex;align-items:center;gap:14px;
+  background:var(--accent-soft);border:1px solid var(--accent);
+  border-radius:6px;padding:14px 18px;margin:28px 0 36px;
+}
+.status-banner .num{
+  font-family:'IBM Plex Mono',monospace;font-size:26px;font-weight:600;color:var(--accent);
+  font-variant-numeric:tabular-nums;
+}
+.status-banner .label{font-size:13.5px;color:var(--ink-soft);}
+.status-banner .label b{color:var(--ink);}
+
+section{margin-bottom:44px;}
+.sec-head{
+  display:flex;align-items:baseline;gap:12px;
+  border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:16px;
+}
+.sec-num{
+  font-family:'IBM Plex Mono',monospace;color:var(--accent);font-size:14px;font-weight:600;
+  min-width:22px;
+}
+h2{font-size:20px;font-weight:600;margin:0;letter-spacing:-.005em;}
+h3{font-size:15px;font-weight:600;margin:22px 0 8px;color:var(--ink);}
+p{margin:0 0 14px;max-width:70ch;}
+.lede{font-size:15.5px;color:var(--ink-soft);}
+
+.pipeline{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+  gap:10px;margin:18px 0 8px;
+}
+.pipe-step{
+  border:1px solid var(--line);border-radius:6px;padding:10px 12px;
+  background:var(--paper);
+}
+.pipe-step .n{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--accent);font-weight:600;}
+.pipe-step .t{font-size:12.5px;margin-top:3px;color:var(--ink);}
+.pipe-step.done{border-color:var(--accent);}
+.pipe-step.next{border-style:dashed;color:var(--ink-soft);opacity:.75;}
+
+code, .mono{font-family:'IBM Plex Mono',monospace;}
+.formula{
+  background:var(--mono-bg);color:var(--mono-ink);
+  border-radius:6px;padding:16px 18px;font-family:'IBM Plex Mono',monospace;
+  font-size:13.5px;overflow-x:auto;margin:14px 0;
+}
+.formula .kw{color:var(--mono-accent);}
+
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:14px 0;}
+th{
+  text-align:left;font-family:'IBM Plex Mono',monospace;font-size:11px;
+  letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft);
+  border-bottom:1px solid var(--ink);padding:8px 10px;font-weight:500;
+}
+td{padding:9px 10px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums;}
+tbody tr:hover{background:var(--paper);}
+td.num, th.num{text-align:right;}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:6px;}
+.tablewrap table{margin:0;}
+.tablewrap th:first-child, .tablewrap td:first-child{padding-left:14px;}
+
+.pill{
+  display:inline-flex;align-items:center;gap:5px;
+  font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;
+  padding:2px 8px;border-radius:20px;
+}
+.pill.ok{background:var(--accent-soft);color:var(--accent);}
+.pill.no{background:var(--red-soft);color:var(--red);}
+.pill.warn{background:var(--amber-soft);color:var(--amber);}
+
+figure{margin:20px 0;}
+figure img{width:100%;display:block;border:1px solid var(--line);border-radius:6px;background:var(--paper);}
+figcaption{font-size:12.5px;color:var(--ink-soft);margin-top:8px;max-width:65ch;}
+figcaption b{color:var(--ink);}
+
+.callout{
+  border-left:3px solid var(--amber);background:var(--amber-soft);
+  border-radius:0 6px 6px 0;padding:14px 16px;margin:18px 0;font-size:14px;
+}
+.callout b{color:var(--ink);}
+.callout.finding{border-left-color:var(--red);background:var(--red-soft);}
+
+.hwgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:16px 0;}
+.hwcard{border:1px solid var(--line);border-radius:6px;padding:12px 14px;background:var(--paper);}
+.hwcard .v{font-family:'IBM Plex Mono',monospace;font-size:19px;font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums;}
+.hwcard .k{font-size:11.5px;color:var(--ink-soft);margin-top:2px;}
+
+.next-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:12px;}
+.next-list li{
+  display:flex;gap:14px;padding:14px 16px;border:1px solid var(--line);
+  border-radius:6px;background:var(--paper);
+}
+.next-list .idx{
+  font-family:'IBM Plex Mono',monospace;color:var(--accent);font-weight:600;font-size:13px;
+  min-width:18px;
+}
+.next-list .body b{display:block;font-size:14px;margin-bottom:2px;}
+.next-list .body span{font-size:13px;color:var(--ink-soft);}
+
+footer{
+  margin-top:56px;padding-top:20px;border-top:1px solid var(--line);
+  font-size:12px;color:var(--ink-soft);font-family:'IBM Plex Mono',monospace;
+}
+a{color:var(--accent);}
+</style>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<div class="wrap">
+
+  <div class="masthead">
+    <div class="eyebrow">Experiment Report &middot; Stage 1 of 2</div>
+    <h1>Can a cost model pick the right code variant on its own?</h1>
+    <p class="subtitle">A scoped, laptop-only validation of the loop-characterization &rarr; cost-model &rarr; device-selection mechanism described in the Heterogeneous Hardware Target Compiler disclosure &mdash; run entirely on local CPU, without the GPU/TPU/FPGA half of the pipeline.</p>
+    <div class="meta-row">
+      <span>Machine: <b>Intel Core Ultra 5 115U</b>, 8C/10T, 16&nbsp;GB RAM</span>
+      <span>Backend: <b>Python 3.12 + NumPy 1.26</b> (no LLVM/clang available)</span>
+      <span>Date: <b>2026-09-02</b></span>
+    </div>
+  </div>
+
+  <div class="status-banner">
+    <div class="num">4/5</div>
+    <div class="label"><b>80% selection accuracy</b> &mdash; the cost model's predicted winner matched the measured winner on 4 of 5 benchmark loops.</div>
+  </div>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">0</span><h2>What this experiment stands in for</h2></div>
+    <p>The patent disclosure's pipeline has five stages spanning five hardware targets (CPU/NVIDIA/AMD/TPU/FPGA). This machine has no discrete GPU and no C/LLVM toolchain installed, so this run substitutes <b>two code-generation variants on one device</b>: a naive scalar loop (interpreter-bound, standing in for unoptimized scalar codegen) versus a NumPy-vectorized loop (SIMD-bound, standing in for optimized/offloaded codegen). Everything downstream &mdash; characterization, cost formula, prediction, measurement, comparison &mdash; is the real mechanism from the disclosure, just applied to a CPU-only substitute pair instead of CPU-vs-GPU.</p>
+    <div class="pipeline">
+      <div class="pipe-step done"><div class="n">01</div><div class="t">Hardware calibration</div></div>
+      <div class="pipe-step done"><div class="n">02</div><div class="t">Loop characterization</div></div>
+      <div class="pipe-step done"><div class="n">03</div><div class="t">Cost model &amp; prediction</div></div>
+      <div class="pipe-step done"><div class="n">04</div><div class="t">Real measurement</div></div>
+      <div class="pipe-step done"><div class="n">05</div><div class="t">Predicted vs. measured</div></div>
+      <div class="pipe-step next"><div class="n">06</div><div class="t">GPU codegen (next)</div></div>
+      <div class="pipe-step next"><div class="n">07</div><div class="t">Adaptive re-tuning (next)</div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">1</span><h2>Hardware calibration</h2></div>
+    <p class="lede">Before the cost model can predict anything, it needs real numbers for <i>this</i> machine &mdash; not datasheet peak specs. Each parameter was measured with a dedicated micro-benchmark rather than looked up.</p>
+    <div class="hwgrid">
+      <div class="hwcard"><div class="v">0.87 GFLOPS</div><div class="k">sustained vectorized FLOPS (elementwise, single-thread)</div></div>
+      <div class="hwcard"><div class="v">29.95 GB/s</div><div class="k">memory bandwidth (contiguous copy)</div></div>
+      <div class="hwcard"><div class="v">282 ns</div><div class="k">sync/lock overhead per op</div></div>
+      <div class="hwcard"><div class="v">~80 ns</div><div class="k">CPython interpreter overhead / iteration</div></div>
+    </div>
+    <p style="font-size:13px;color:var(--ink-soft)">Note: the 0.87 GFLOPS figure is <i>sustained</i> vectorized NumPy throughput, not theoretical AVX peak &mdash; that's the honest number to feed the cost model, since it reflects what the actual codegen backend (NumPy) achieves, not idealized silicon.</p>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">2</span><h2>Benchmark suite &amp; static characterization</h2></div>
+    <p class="lede">Five loops chosen to span a wide range of arithmetic intensity and one deliberately irregular/branchy case &mdash; each characterized <i>without running it</i>, purely from known loop structure. This is the stand-in for what an IR-level compiler pass would extract automatically.</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr>
+          <th>Benchmark</th><th>Description</th><th class="num">Iterations</th><th class="num">FLOPs</th><th class="num">Bytes moved</th><th class="num">Arith. Intensity</th><th class="num">Branch %</th>
+        </tr></thead>
+        <tbody>
+          <tr><td class="mono">vector_add</td><td>c[i] = a[i] + b[i]</td><td class="num">5,000,000</td><td class="num">5.0M</td><td class="num">120.0M</td><td class="num">0.042</td><td class="num">0%</td></tr>
+          <tr><td class="mono">dot_product</td><td>sum += a[i]&middot;b[i]</td><td class="num">5,000,000</td><td class="num">10.0M</td><td class="num">80.0M</td><td class="num">0.125</td><td class="num">0%</td></tr>
+          <tr><td class="mono">stencil_2d</td><td>5-point 2D stencil avg</td><td class="num">3,996,004</td><td class="num">20.0M</td><td class="num">159.7M</td><td class="num">0.125</td><td class="num">0%</td></tr>
+          <tr><td class="mono">matmul</td><td>C = A @ B, 300&times;300</td><td class="num">27,000,000</td><td class="num">54.0M</td><td class="num">2.16M</td><td class="num" style="color:var(--accent);font-weight:600">25.000</td><td class="num">0%</td></tr>
+          <tr><td class="mono">irregular_branchy_sum</td><td>if a[i]%7==0: sum += a[i]</td><td class="num">5,000,000</td><td class="num">5.0M</td><td class="num">40.0M</td><td class="num">0.125</td><td class="num" style="color:var(--amber);font-weight:600">100%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:13px;color:var(--ink-soft);margin-top:8px">matmul is the deliberate outlier: 25 FLOPs/byte (compute-bound) versus &lt;0.13 for everything else (memory-bound) &mdash; this spread is what lets the cost model's discrimination actually get tested.</p>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">3</span><h2>Cost model &amp; prediction</h2></div>
+    <p class="lede">For each loop, the model estimates total execution time on both variants and predicts a winner &mdash; mirroring the disclosure's Section 6 formula exactly:</p>
+    <div class="formula"><span class="kw">T_total</span> = max(T_compute, T_memory) + T_sync<br>
+    <span class="kw">T_compute</span> = FLOPs / Peak_FLOPS<span style="color:var(--ink-soft)">&nbsp;&nbsp;&nbsp;// vectorized path only</span><br>
+    <span class="kw">T_memory</span> = Bytes / Bandwidth<br>
+    <span class="kw">T_sync</span>&nbsp;&nbsp; = branch_ratio &times; iterations &times; sync_latency<span style="color:var(--ink-soft)">&nbsp;&nbsp;// vectorization penalty for divergent code</span><br>
+    <span class="kw">T_scalar</span> = iterations &times; interpreter_overhead</div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Benchmark</th><th class="num">Predicted T (vector)</th><th class="num">Predicted T (scalar)</th><th>Predicted winner</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">vector_add</td><td class="num">0.005728 s</td><td class="num">0.400000 s</td><td><span class="pill ok">vector</span></td></tr>
+          <tr><td class="mono">dot_product</td><td class="num">0.011457 s</td><td class="num">0.400000 s</td><td><span class="pill ok">vector</span></td></tr>
+          <tr><td class="mono">stencil_2d</td><td class="num">0.022867 s</td><td class="num">0.319360 s</td><td><span class="pill ok">vector</span></td></tr>
+          <tr><td class="mono">matmul</td><td class="num">0.061866 s</td><td class="num">2.160000 s</td><td><span class="pill ok">vector</span></td></tr>
+          <tr><td class="mono">irregular_branchy_sum</td><td class="num">1.417428 s</td><td class="num">0.400000 s</td><td><span class="pill warn">scalar</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout"><b>Bug caught mid-run:</b> the first version of this model used each benchmark's size parameter <span class="mono">N</span> directly for the scalar-overhead term. That's correct for the 1D loops, but wrong for <span class="mono">stencil_2d</span> (N = grid edge length, not iteration count = N&sup2;) and <span class="mono">matmul</span> (N = matrix dimension, not N&sup3; iterations) &mdash; it silently predicted <i>scalar</i> as the winner for both. Fixed by tracking iteration count as an explicit field, separate from the problem-size parameter, in the characterization step.</div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">4</span><h2>Real measurement</h2></div>
+    <p class="lede">Both variants were then actually executed and timed (best of 3 runs; matmul scalar run once &mdash; at 27M pure-Python iterations it takes ~1.6s and is not noise-sensitive).</p>
+    <figure>
+      <img src="{{FIG1}}" alt="Bar chart comparing measured scalar vs vectorized execution time per benchmark, log scale">
+      <figcaption><b>Figure 1.</b> Measured wall-clock time, scalar vs. vectorized variant, log scale. Vectorization wins everywhere &mdash; including, unexpectedly, the branchy case.</figcaption>
+    </figure>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Benchmark</th><th class="num">Measured T (scalar)</th><th class="num">Measured T (vector)</th><th class="num">Speedup</th><th>Measured winner</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">vector_add</td><td class="num">0.603821 s</td><td class="num">0.033570 s</td><td class="num">18.0&times;</td><td><span class="pill ok">vector</span></td></tr>
+          <tr><td class="mono">dot_product</td><td class="num">0.714887 s</td><td class="num">0.029966 s</td><td class="num">23.9&times;</td><td><span class="pill ok">vector</span></td></tr>
+          <tr><td class="mono">stencil_2d</td><td class="num">0.771484 s</td><td class="num">0.059393 s</td><td class="num">13.0&times;</td><td><span class="pill ok">vector</span></td></tr>
+          <tr><td class="mono">matmul</td><td class="num">1.592192 s</td><td class="num">0.002163 s</td><td class="num" style="color:var(--accent);font-weight:600">736.0&times;</td><td><span class="pill ok">vector</span></td></tr>
+          <tr><td class="mono">irregular_branchy_sum</td><td class="num">0.399250 s</td><td class="num">0.050141 s</td><td class="num">8.0&times;</td><td><span class="pill ok">vector</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">5</span><h2>Predicted vs. measured &mdash; the core result</h2></div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Benchmark</th><th class="num">Arith. Intensity</th><th class="num">Branch %</th><th>Predicted</th><th>Measured</th><th>Match</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">vector_add</td><td class="num">0.042</td><td class="num">0%</td><td>vector</td><td>vector</td><td><span class="pill ok">&#10003; match</span></td></tr>
+          <tr><td class="mono">dot_product</td><td class="num">0.125</td><td class="num">0%</td><td>vector</td><td>vector</td><td><span class="pill ok">&#10003; match</span></td></tr>
+          <tr><td class="mono">stencil_2d</td><td class="num">0.125</td><td class="num">0%</td><td>vector</td><td>vector</td><td><span class="pill ok">&#10003; match</span></td></tr>
+          <tr><td class="mono">matmul</td><td class="num">25.000</td><td class="num">0%</td><td>vector</td><td>vector</td><td><span class="pill ok">&#10003; match</span></td></tr>
+          <tr><td class="mono">irregular_branchy_sum</td><td class="num">0.125</td><td class="num">100%</td><td>scalar</td><td>vector</td><td><span class="pill no">&#10007; miss</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <figure>
+      <img src="{{FIG2}}" alt="Scatter plot of arithmetic intensity vs measured speedup, colored by whether prediction matched measurement">
+      <figcaption><b>Figure 2.</b> Arithmetic intensity vs. measured vectorization speedup (log-log). Green = cost model called it correctly; red = the one miss, <span class="mono">irregular_branchy_sum</span>.</figcaption>
+    </figure>
+
+    <figure style="max-width:340px">
+      <img src="{{FIG3}}" alt="Bar chart showing 4 correct and 1 incorrect prediction">
+      <figcaption><b>Figure 3.</b> Selection accuracy across the 5-benchmark suite: 4/5 = 80%.</figcaption>
+    </figure>
+
+    <div class="callout finding">
+      <b>The one miss is the most informative result.</b> The model predicted scalar would win <span class="mono">irregular_branchy_sum</span> because it charges the vectorized path a per-iteration sync/masking penalty proportional to branch ratio &mdash; mirroring the disclosure's claim that "high divergence indicates irregular execution unsuitable for SIMD." In reality, NumPy's boolean-mask vectorization (<span class="mono">a[mask].sum()</span>) still beat the scalar loop by 8&times;, because it evaluates the predicate <i>as a vector op itself</i> rather than branching per element. The disclosure's divergence penalty is real for GPU warp divergence, but the model's flat "branch_ratio &times; sync_latency" formula overcharges non-branching-hardware SIMD paths that use masking instead of control flow. This is exactly the kind of gap that only shows up by actually measuring &mdash; it wouldn't have been visible from the disclosure text alone.</div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">6</span><h2>What this does and doesn't validate</h2></div>
+    <table style="margin:0">
+      <thead><tr><th>Validated</th><th>Not validated (needs Stage 2)</th></tr></thead>
+      <tbody>
+        <tr><td>The characterize &rarr; cost-model &rarr; predict &rarr; measure loop works end-to-end</td><td>Real GPU/CUDA codegen and cross-device transfer overhead</td></tr>
+        <tr><td>A cost formula matching the disclosure's T_total structure gets 4/5 selections right</td><td>TPU fixed-shape and FPGA HLS constraints</td></tr>
+        <tr><td>A concrete, reproducible failure mode in the divergence-penalty term</td><td>PCIe transfer cost modeling (T_transfer term, unused here &mdash; single device)</td></tr>
+        <tr><td>Hardware calibration methodology (measure, don't guess, device parameters)</td><td>Adaptive runtime re-tuning (Component 5 of the disclosure)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">7</span><h2>Next steps</h2></div>
+    <ul class="next-list">
+      <li><span class="idx">01</span><div class="body"><b>Fix the divergence-penalty term</b><span>Replace the flat branch_ratio &times; sync_latency charge with a masking-aware model: distinguish "control-flow divergence" (costly on GPU warps) from "predicate masking" (cheap on CPU/GPU SIMD) as two different terms.</span></div></li>
+      <li><span class="idx">02</span><div class="body"><b>Add a real second device</b><span>Rent a cheap cloud GPU instance (e.g. AWS g4dn.xlarge, ~$0.50/hr) to run the same 5 benchmarks as actual CUDA kernels, to replace the "vectorized-CPU-as-GPU-proxy" stand-in with a genuine CPU-vs-GPU comparison.</span></div></li>
+      <li><span class="idx">03</span><div class="body"><b>Move characterization onto real IR</b><span>Install LLVM/Clang (not available on this machine today) and replace the hand-written analytical characterizer with an actual Polly/LLVM pass reading real IR, to remove the "we already know the loop structure" shortcut this prototype takes.</span></div></li>
+      <li><span class="idx">04</span><div class="body"><b>Grow the benchmark suite</b><span>Pull loops from Polybench/Rodinia instead of hand-written ones, to reduce the risk that 5 hand-picked benchmarks happen to flatter the model.</span></div></li>
+      <li><span class="idx">05</span><div class="body"><b>Re-run the accuracy metric</b><span>Once Steps 1&ndash;4 land, repeat this exact comparison methodology (Section 5) on real CPU-vs-GPU data and report the updated selection accuracy &mdash; that number is what belongs in the patent's TRL/validation section, which is currently blank.</span></div></li>
+    </ul>
+  </section>
+
+  <footer>
+    Generated from a fully reproducible local pipeline (01_calibrate.py &rarr; 02_characterize.py &rarr; 03_cost_model.py &rarr; 04_measure.py &rarr; 05_compare.py &rarr; 06_figures.py). All data in this report is measured, not illustrative.
+  </footer>
+
+</div>
